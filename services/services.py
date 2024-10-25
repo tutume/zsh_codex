@@ -75,6 +75,9 @@ class GoogleGenAIClient(BaseClient):
     def __init__(self, config: dict):
         try:
             import google.generativeai as genai
+            # TODO: Make it as parameter and warn users in messages
+            from google.generativeai.types import HarmCategory, HarmBlockThreshold
+
         except ImportError:
             print(
                 "Google Generative AI library is not installed. Please install it using 'pip install google-generativeai'"
@@ -84,7 +87,11 @@ class GoogleGenAIClient(BaseClient):
         self.config = config
         genai.configure(api_key=self.config["api_key"])
         self.config["model"] = config.get("model", self.default_model)
-        self.model = genai.GenerativeModel(self.config["model"])
+
+        # TODO: Make it as parameter and warn users in messages
+
+        self.model = genai.GenerativeModel(self.config["model"],
+                                           safety_settings={HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,})
 
     def get_completion(self, full_command: str) -> str:
         chat = self.model.start_chat(history=[])
